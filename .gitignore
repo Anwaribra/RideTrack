@@ -2,4 +2,5 @@ venv/
 .env
 
 aws 
-awsccliv2.zip
+awsccliv2.zip.env
+.env
