@@ -1,0 +1,5 @@
+{
+    "S3_BUCKET": "ridetrack-data-lake",
+    "S3_KEY_PREFIX": "nyc_taxi/",
+    "AWS_REGION": "eu-north-1"
+}

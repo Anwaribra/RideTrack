@@ -1,0 +1,8 @@
+{
+    "bootstrap_servers": "localhost:9092",
+    "topics": {
+        "weather_data": "weather_data",
+        "gps_data": "gps_data",
+        "nyc_taxi": "nyc_taxi"
+    }
+}
