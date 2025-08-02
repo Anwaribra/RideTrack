@@ -1,66 +1,74 @@
-# RideTrack
-
+# RideTrack360
 
 ## Overview
-RideTrack is an intelligent system for real-time monitoring and analysis of ride data, predicting demand and arrival times using GPS data, weather conditions, and historical trip data.  
-It combines **Big Data Engineering**, **Real-Time Analytics**, and **Machine Learning** to simulate ride-hailing platforms like Uber or Careem.
+RideTrack360 is a comprehensive big data analytics platform for ride-hailing services, focusing on New York City operations. It processes real-time GPS tracking, weather conditions, and historical taxi data to provide actionable insights and predictions.
 
----
+## Architecture
 
-## Project Components
+### 1. Data Ingestion Layer
+Three main data sources are processed through dedicated Python scripts:
 
-### 1. Ingestion Layer
-- `gps_data_producer.py`: Generates simulated real-time GPS data for vehicles.
-- `weather_api_ingest.py`: Pulls live weather data from OpenWeather API.
-- `nyc_taxi_ingest.py`: Fetches historical trip data from the NYC Taxi public dataset.
-- Transport & Messaging:
-  - **Kafka** for streaming data.
-  - **Amazon S3** for batch storage.
+#### Real-time Data Sources
+1. **GPS Tracking** (`gps_data_producer.py`)
+   - Simulates vehicle locations in NYC
+   - Updates every 2 seconds
+   - JSON format with vehicle ID, coordinates, speed
+   - Streams to Kafka topic: `gps_topic`
 
-### 2. Processing Layer
-- **Spark Structured Streaming**: Joins GPS and Weather streams, applies cleaning and transformation in real-time.
-- **Spark Batch**: Processes historical data for deep analysis and modeling.
-- **dbt**: Transforms and models data into a **Star Schema** for analytics-ready consumption.
+2. **Weather Data** (`weather_api_ingest.py`)
+   - Real-time NYC weather from OpenWeather API
+   - Updates every 5 minutes
+   - Temperature, conditions, humidity
+   - Streams to Kafka topic: `weather_topic`
 
-### 3. Storage Layer
-- **Amazon S3** as a Data Lake for raw and processed data.
-- **PostgreSQL / Snowflake** as a Data Warehouse for curated, analytics-ready datasets.
+#### Batch Data Source
+3. **NYC Taxi Data** (`nyc_taxi_ingest.py`)
+   - Monthly historical trip data
+   - Parquet files from NYC TLC
+   - Automated download and S3 storage
+   - Source: NYC Taxi & Limousine Commission
 
-### 4. Analytics & Machine Learning
-- ML models for:
-  - **ETA Prediction** (Estimated Time of Arrival).
-  - **Demand Forecasting** for different regions and times.
-- Libraries: `scikit-learn`, `pyspark.ml`.
+### 2. Data Processing
+- **Stream Processing**: Apache Spark Structured Streaming
+  - Real-time GPS and weather data integration
+  - Live metrics calculation
+  - Anomaly detection
 
-### 5. Visualization Layer
-- **Streamlit**: Real-time interactive dashboard with live maps and metrics.
-- **Power BI / Tableau**: Historical analysis, performance KPIs, and predictive analytics.
+- **Batch Processing**: Apache Spark & dbt
+  - Historical data transformation
+  - Feature engineering for ML
+  - Analytics-ready views
 
----
+### 3. Storage Solutions
+- **Data Lake**: Amazon S3
+  - Raw data storage
+  - Processed data partitions
+  - Cost-effective long-term storage
 
-## Expected Outputs
+- **Data Warehouse**: Snowflake
+  - Structured analytics tables
+  - Optimized for querying
+  - Multi-tenant access
 
-### Real-Time Dashboard
-- Live vehicle positions on an interactive map.
-- Weather conditions affecting ride performance.
-- KPIs: active trips, average ETA, average speed, etc.
+### 4. Analytics & ML
+- **Real-time Analytics**
+  - Vehicle tracking
+  - Demand patterns
+  - Weather impact analysis
 
-### Historical Analytics Dashboard
-- Trip demand trends over days/weeks.
-- Peak traffic and demand times.
-- Correlation between weather and trip duration.
+- **Predictive Models**
+  - ETA predictions
+  - Demand forecasting
+  - Weather-based adjustments
 
-### Machine Learning Predictions
-- Predict ETA for any ongoing trip.
-- Forecast demand in different areas for upcoming time slots.
+### 5. Visualization
+- **Real-time Dashboard**: Streamlit
+  - Live maps
+  - Current metrics
+  - Active vehicle tracking
 
----
+- **Analytics Dashboard**: Power BI
+  - Historical trends
+  - KPI tracking
+  - Custom reports
 
-##  what we do 
-- Combines **Streaming & Batch** data processing.
-- Integrates with **Cloud Services** (AWS S3, possibly Snowflake).
-- Includes **Machine Learning** for predictive insights.
-- Features clear, interactive **visualization dashboards**.
-- Mimics real-world ride-hailing analytics infrastructure.
-
----
