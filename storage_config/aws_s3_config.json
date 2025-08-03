@@ -1,6 +1,5 @@
 {
-    "bucket_name": "ridetrack-data-lake",
-    "aws_access_key_id": "YOUR_AWS_ACCESS_KEY_ID",
-    "aws_secret_access_key": "YOUR_AWS_SECRET_ACCESS_KEY",
-    "region": "eu-north-1"
+    "S3_BUCKET": "ridetrack-data-lake",
+    "S3_KEY_PREFIX": "nyc_taxi/",
+    "AWS_REGION": "eu-north-1"
 }
