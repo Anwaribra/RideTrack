@@ -10,9 +10,15 @@ NYC_BOUNDS = {
     'lon': {'min': -74.0, 'max': -73.7}
 }
 
+# Load Kafka configuration
+def load_kafka_config():
+    with open('storage_config/kafka_config.json', 'r') as f:
+        return json.load(f)
+
 # Kafka configuration
-KAFKA_BROKER = 'localhost:9092'
-TOPIC = 'gps_topic'
+kafka_config = load_kafka_config()
+KAFKA_BROKER = kafka_config['bootstrap_servers']
+TOPIC = kafka_config['topics']['gps_data']
 
 VEHICLES = [f'V{str(i).zfill(4)}' for i in range(1, 51)]
 

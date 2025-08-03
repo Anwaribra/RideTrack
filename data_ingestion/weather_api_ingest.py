@@ -9,9 +9,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Load Kafka configuration
+def load_kafka_config():
+    with open('storage_config/kafka_config.json', 'r') as f:
+        return json.load(f)
+
 # kafka configuration
-KAFKA_BROKER = 'localhost:9092'
-TOPIC = 'weather_topic'
+kafka_config = load_kafka_config()
+KAFKA_BROKER = kafka_config['bootstrap_servers']
+TOPIC = kafka_config['topics']['weather_data']
 
 # openweather api configuration
 CITY = "New York"
