@@ -46,6 +46,9 @@ services:
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
+      - SPARK_LOCAL_HOSTNAME=rt360_spark_master
+      - SPARK_SUBMIT_OPTS=-Dspark.hadoop.security.authentication=NONE -Dspark.hadoop.security.authorization=false
+      - USER=spark 
     ports:
       - "8080:8080"
       - "7077:7077"
@@ -69,6 +72,9 @@ services:
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
+      - SPARK_LOCAL_HOSTNAME=rt360_spark_worker
+      - SPARK_SUBMIT_OPTS=-Dspark.hadoop.security.authentication=NONE -Dspark.hadoop.security.authorization=false
+      - USER=spark 
     depends_on:
       - spark
     volumes:
