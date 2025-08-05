@@ -72,8 +72,5 @@ Three main data sources are processed through dedicated Python scripts:
   - KPI tracking
   - Custom reports
 
-        F --> J[Power BI Dashboard]
-    end
 
-    H --> I
 
