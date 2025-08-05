@@ -72,31 +72,6 @@ Three main data sources are processed through dedicated Python scripts:
   - KPI tracking
   - Custom reports
 
-flowchart LR
-    subgraph Sources
-        A[GPS Data Producer (Kafka)]
-        B[Weather API Ingest]
-        C[NYC Taxi Dataset (Batch)]
-    end
-
-    subgraph Streaming
-        A --> D[Apache Spark Streaming]
-        B --> D
-        D --> G[(AWS S3 Data Lake)]
-        G --> H[(Snowflake Data Warehouse)]
-        D --> I[Streamlit (Real-Time Dashboard)]
-    end
-
-    subgraph Batch
-        C --> E[Apache Airflow ETL]
-        E --> H
-    end
-
-    subgraph Transform
-        H --> F[dbt Transformation]
-    end
-
-    subgraph Visualization
         F --> J[Power BI Dashboard]
     end
 
