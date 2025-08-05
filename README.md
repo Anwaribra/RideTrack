@@ -72,3 +72,9 @@ Three main data sources are processed through dedicated Python scripts:
   - KPI tracking
   - Custom reports
 
+[GPS Data Producer (Kafka)] ---> [Spark Streaming] ---\
+[Weather API Ingest] -----------/                     \
+                                                      [S3 Data Lake] ---> [Snowflake Data Warehouse] ---> [dbt Models] ---> [Power BI Dashboard]
+[NYC Taxi Dataset (Batch)] ---> [Airflow Batch ETL] --/
+
+[Streamlit Real-Time Dashboard] <--- [Spark Streaming Output]
