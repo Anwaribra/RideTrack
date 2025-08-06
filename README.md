@@ -24,7 +24,7 @@ flowchart TD
     Snowflake["Snowflake Data Warehouse"]
 
     %% Dashboards
-    Streamlit["Streamlit Real-Time Dashboard"]
+    Streamlit["Streamlit Real-Time "]
     PowerBI["Power BI Dashboard"]
 
     %% Streaming Path
