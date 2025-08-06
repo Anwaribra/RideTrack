@@ -5,14 +5,13 @@ RideTrack360 is a comprehensive big data analytics platform for ride-hailing ser
 
 ## Architecture
 
-### Diagram Walkthrough
 
 ```mermaid
 flowchart TD
     %% Sources
     GPS["GPS Data Producer (Kafka)"]
     Weather["Weather Data Source"]
-    Taxi["NYC Taxi Data Source (Historical)"]
+    Taxi["NYC Taxi (Historical)"]
 
     %% Processing
     SparkStream["Spark Streaming"]
@@ -24,7 +23,7 @@ flowchart TD
     ClickHouse["ClickHouse Data Warehouse"]
 
     %% Dashboards
-    Streamlit["Streamlit Real-Time Dashboard"]
+    Streamlit["Streamlit Real-Time "]
     PowerBI["Power BI Dashboard"]
 
     %% Streaming Path
