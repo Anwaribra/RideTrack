@@ -1,76 +1,47 @@
 # RideTrack360
 
 ## Overview
-RideTrack360 is a comprehensive big data analytics platform for ride-hailing services, focusing on New York City operations. It processes real-time GPS tracking, weather conditions, and historical taxi data to provide actionable insights and predictions.
+RideTrack360 is a comprehensive big data analytics platform for ride-hailing services, focusing on New York City operations. It processes real-time GPS tracking, weather conditions, and historical taxi data to provide actionable insights and predictions. The platform features robust streaming and batch data pipelines, cloud-native storage, and advanced analytics, all orchestrated for reliability and scalability.
 
 ## Architecture
 
-### 1. Data Ingestion Layer
-Three main data sources are processed through dedicated Python scripts:
+### Diagram Walkthrough
 
-#### Real-time Data Sources
-1. **GPS Tracking** (`gps_data_producer.py`)
-   - Simulates vehicle locations in NYC
-   - Updates every 2 seconds
-   - JSON format with vehicle ID, coordinates, speed
-   - Streams to Kafka topic: `gps_topic`
+```mermaid
+flowchart TD
+    %% Sources
+    GPS["GPS Data Producer (Kafka)"]
+    Weather["Weather Data Source"]
+    Taxi["NYC Taxi Data Source (Historical)"]
 
-2. **Weather Data** (`weather_api_ingest.py`)
-   - Real-time NYC weather from OpenWeather API
-   - Updates every 5 minutes
-   - Temperature, conditions, humidity
-   - Streams to Kafka topic: `weather_topic`
+    %% Processing
+    SparkStream["Spark Streaming"]
+    Airflow["Airflow Batch ETL"]
+    dbt["dbt Models"]
 
-#### Batch Data Source
-3. **NYC Taxi Data** (`nyc_taxi_ingest.py`)
-   - Monthly historical trip data
-   - Parquet files from NYC TLC
-   - Automated download and S3 storage
-   - Source: NYC Taxi & Limousine Commission
+    %% Shared Storage
+    S3["S3 Data Lake"]
+    Snowflake["Snowflake Data Warehouse"]
 
-### 2. Data Processing
-- **Stream Processing**: Apache Spark Structured Streaming
-  - Real-time GPS and weather data integration
-  - Live metrics calculation
-  - Anomaly detection
+    %% Dashboards
+    Streamlit["Streamlit Real-Time Dashboard"]
+    PowerBI["Power BI Dashboard"]
 
-- **Batch Processing**: Apache Spark & dbt
-  - Historical data transformation
-  - Feature engineering for ML
-  - Analytics-ready views
+    %% Streaming Path
+    GPS -->|Stream| SparkStream
+    Weather -->|Stream| SparkStream
+    SparkStream --> S3
+    S3 --> Snowflake
+    Snowflake --> Streamlit
 
-### 3. Storage Solutions
-- **Data Lake**: Amazon S3
-  - Raw data storage
-  - Processed data partitions
-  - Cost-effective long-term storage
+    %% Batch Path
+    Taxi --> Airflow
+    Airflow --> S3
+    S3 --> Snowflake
+    Snowflake --> dbt
+    dbt --> PowerBI
+```
 
-- **Data Warehouse**: Snowflake
-  - Structured analytics tables
-  - Optimized for querying
-  - Multi-tenant access
-
-### 4. Analytics & ML
-- **Real-time Analytics**
-  - Vehicle tracking
-  - Demand patterns
-  - Weather impact analysis
-
-- **Predictive Models**
-  - ETA predictions
-  - Demand forecasting
-  - Weather-based adjustments
-
-### 5. Visualization
-- **Real-time Dashboard**: Streamlit
-  - Live maps
-  - Current metrics
-  - Active vehicle tracking
-
-- **Analytics Dashboard**: Power BI
-  - Historical trends
-  - KPI tracking
-  - Custom reports
-
-
-
+- Both streaming and batch pipelines share S3 Data Lake and Snowflake Data Warehouse.
+- The streaming pipeline flows from GPS/Weather → Spark Streaming → S3 → Snowflake → Streamlit.
+- The batch pipeline flows from NYC Taxi Data → Airflow → S3 → Snowflake → dbt → Power BI.
