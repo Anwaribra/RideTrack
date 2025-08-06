@@ -4,9 +4,6 @@
 RideTrack360 is a comprehensive big data analytics platform for ride-hailing services, focusing on New York City operations. It processes real-time GPS tracking, weather conditions, and historical taxi data to provide actionable insights and predictions. The platform features robust streaming and batch data pipelines, cloud-native storage, and advanced analytics, all orchestrated for reliability and scalability.
 
 ## Architecture
-
-### Diagram Walkthrough
-
 ```mermaid
 flowchart TD
     %% Sources
