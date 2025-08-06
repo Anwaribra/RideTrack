@@ -12,7 +12,7 @@ flowchart TD
     %% Sources
     GPS["GPS Data Producer (Kafka)"]
     Weather["Weather Data Source"]
-    Taxi["NYC Taxi Data Source (Historical)"]
+    Taxi["NYC Taxi (Historical)"]
 
     %% Processing
     SparkStream["Spark Streaming"]
