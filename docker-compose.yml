@@ -37,8 +37,11 @@ services:
 
   # Spark Master 
   spark:
-    image: bitnami/spark:4.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
     container_name: rt360_spark_master
+    hostname: rt360_spark_master
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
@@ -47,6 +50,7 @@ services:
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
       - SPARK_LOCAL_HOSTNAME=rt360_spark_master
+      - SPARK_MASTER_HOST=rt360_spark_master
       - SPARK_SUBMIT_OPTS=-Dspark.hadoop.security.authentication=NONE -Dspark.hadoop.security.authorization=false
       - USER=spark 
     ports:
@@ -60,8 +64,11 @@ services:
 
   # Spark Worker
   spark-worker:
-    image: bitnami/spark:4.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
     container_name: rt360_spark_worker
+    hostname: rt360_spark_worker
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://rt360_spark_master:7077
@@ -73,6 +80,7 @@ services:
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
       - SPARK_LOCAL_HOSTNAME=rt360_spark_worker
+      - SPARK_MASTER_HOST=rt360_spark_master
       - SPARK_SUBMIT_OPTS=-Dspark.hadoop.security.authentication=NONE -Dspark.hadoop.security.authorization=false
       - USER=spark 
     depends_on:

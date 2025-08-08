@@ -52,7 +52,8 @@ def main():
             producer.send(TOPIC, gps_data)
             print(f"Sent GPS data: {gps_data}")
 
-            time.sleep(2)
+            
+            time.sleep(5)  # 5 second 
             
     except KeyboardInterrupt:
         print("\nstopping GPS Data Producer")

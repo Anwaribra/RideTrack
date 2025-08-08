@@ -8,8 +8,6 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-
-# Load Kafka configuration
 def load_kafka_config():
     with open('storage_config/kafka_config.json', 'r') as f:
         return json.load(f)
@@ -19,7 +17,7 @@ kafka_config = load_kafka_config()
 KAFKA_BROKER = kafka_config['bootstrap_servers']
 TOPIC = kafka_config['topics']['weather_data']
 
-# openweather api configuration
+# api configuration
 CITY = "New York"
 API_KEY = os.getenv('OPENWEATHER_API_KEY')  
 if not API_KEY:
@@ -58,19 +56,17 @@ def fetch_weather_data():
 def main():
     """Main function to run the weather data producer"""
     producer = create_kafka_producer()
-    print(f"Starting Weather Data Producer - fetching data every 5 minutes for {CITY}")
+    print(f"fetching data every 5 minutes for {CITY}")
     
     try:
         while True:
-            # fetch and send weather data
             weather_data = fetch_weather_data()
             
             if weather_data:
                 producer.send(TOPIC, weather_data)
                 print(f"Sent weather data: {weather_data}")
             
-            
-            time.sleep(0.1)  
+            time.sleep(300)  # 5m
             
     except KeyboardInterrupt:
         print("\nStopping Weather Data Producer")
