@@ -1,4 +1,4 @@
-# RideTrack360 Data Warehouse
+# RideTrack DWH
 
 
 ##  Data Model
@@ -7,9 +7,6 @@ The data warehouse follows a star schema with:
 - **Fact Tables**: trips, vehicle_movement, weather
 - **Dimension Tables**: time, location, vehicle, payment, rate, weather
 - **Views**: Trip Analysis, Vehicle & Operational, Weather & Environmental,Real-time & Monitoring Views
-
-
-
 
 
 ### Data Warehouse Schema
