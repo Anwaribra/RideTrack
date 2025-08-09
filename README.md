@@ -4,7 +4,7 @@
 RideTrack360 is an intelligent real-time analytics platform designed for ride-hailing and fleet management services in New York City. The system continuously ingests and processes live GPS tracking data from vehicles, real-time weather conditions, and NYC taxi trip information to deliver instant insights and operational intelligence. Built with cutting-edge streaming technologies, RideTrack360 empowers businesses with live fleet monitoring, demand forecasting, and revenue optimization capabilities.
 
 ## Architecture
-![Pipeline Architecture](data_ingestion\doc\PipelineArchitectur.jpg) 
+![Pipeline Architecture](data_ingestion/doc/PipelineArchitectur.jpg) 
 
 
 ## Key Features
