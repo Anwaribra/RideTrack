@@ -4,3 +4,12 @@ venv/
 aws 
 awsccliv2.zip.env
 .env
+
+dashboard_queries.sql
+
+monitoring/
+
+management/
+
+
+

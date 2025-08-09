@@ -16,9 +16,6 @@ def run_script(script_name):
     )
     while running and process.poll() is None:
         output = process.stdout.readline()
-        if output:
-            print(f"[{script_name}] {output.strip()}")
-    if process.poll() is None:
         process.terminate()
 
 def signal_handler(signum, frame):
@@ -43,5 +40,4 @@ def main():
     for thread in threads:
         thread.join()
 
-if __name__ == "__main__":
-    main()
+main()

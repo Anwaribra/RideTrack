@@ -1,80 +1,91 @@
 import json
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from kafka import KafkaProducer
 from dotenv import load_dotenv
 
+DEFAULT_INTERVAL_SECONDS = 300
 
 load_dotenv()
-def load_kafka_config():
+
+def load_config():
     with open('storage_config/kafka_config.json', 'r') as f:
-        return json.load(f)
+        kafka_config = json.load(f)
+    
+    interval_seconds = int(os.getenv('WEATHER_FETCH_INTERVAL_SECONDS', DEFAULT_INTERVAL_SECONDS))
+    
+    return {
+        'kafka': kafka_config,
+        'interval_seconds': interval_seconds,
+        'city': os.getenv('WEATHER_CITY', 'New York'),
+        'api_key': os.getenv('OPENWEATHER_API_KEY')
+    }
 
-# kafka configuration
-kafka_config = load_kafka_config()
-KAFKA_BROKER = kafka_config['bootstrap_servers']
-TOPIC = kafka_config['topics']['weather_data']
-
-# api configuration
-CITY = "New York"
-API_KEY = os.getenv('OPENWEATHER_API_KEY')  
-if not API_KEY:
-    raise ValueError("OpenWeather API key not found. Set OPENWEATHER_API_KEY environment variable.")
+config = load_config()
+KAFKA_BROKER = config['kafka']['bootstrap_servers']
+TOPIC = config['kafka']['topics']['weather_data']
+CITY = config['city']
+API_KEY = config['api_key']
 
 def create_kafka_producer():
-    """Create and return a Kafka producer instance"""
     return KafkaProducer(
         bootstrap_servers=KAFKA_BROKER,
-        value_serializer=lambda v: json.dumps(v).encode('utf-8')
+        value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+        retries=5,
+        retry_backoff_ms=1000
     )
 
+def setup_http_session():
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504]
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    return session
+
+def validate_weather_data(data):
+    return (isinstance(data, dict) and
+            all(field in data['main'] for field in ['temp', 'humidity']) and
+            isinstance(data['weather'], list) and
+            len(data['weather']) > 0 and
+            'main' in data['weather'][0])
+
 def fetch_weather_data():
-    """Fetch current weather data from OpenWeather API"""
     url = f"https://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}&units=metric"
+    session = setup_http_session()
     
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  
-        data = response.json()
-        
-        weather_data = {
-            "city": CITY,
-            "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "temperature_c": round(data['main']['temp'], 1),
-            "weather_condition": data['weather'][0]['main'],
-            "humidity": data['main']['humidity']
-        }
-        
-        return weather_data
-        
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching weather data: {e}")
-        return None
+    response = session.get(url, timeout=10)
+    response.raise_for_status()
+    data = response.json()
+    
+    return {
+        "city": CITY,
+        "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "temperature_c": round(data['main']['temp'], 1),
+        "weather_condition": data['weather'][0]['main'],
+        "humidity": data['main']['humidity']
+    }
 
 def main():
-    """Main function to run the weather data producer"""
+    config = load_config()
+    interval_seconds = config['interval_seconds']
     producer = create_kafka_producer()
-    print(f"fetching data every 5 minutes for {CITY}")
     
-    try:
-        while True:
-            weather_data = fetch_weather_data()
-            
-            if weather_data:
-                producer.send(TOPIC, weather_data)
-                print(f"Sent weather data: {weather_data}")
-            
-            time.sleep(300)  # 5m
-            
-    except KeyboardInterrupt:
-        print("\nStopping Weather Data Producer")
-        producer.close()
-        
-    except Exception as e:
-        print(f"Error occurred: {e}")
-        producer.close()
+    next_fetch_time = datetime.now()
+    
+    while True:
+        current_time = datetime.now()
+        weather_data = fetch_weather_data()
+        producer.send(TOPIC, weather_data).get(timeout=10)
+        next_fetch_time = current_time + timedelta(seconds=interval_seconds)
+        time.sleep(interval_seconds)
 
-if __name__ == "__main__":
-    main()
+main()

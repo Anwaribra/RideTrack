@@ -10,13 +10,8 @@ load_dotenv()
 def load_kafka_config():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(os.path.dirname(current_dir), 'storage_config', 'kafka_config.json')
-    
-    try:
-        with open(config_path, 'r') as f:
-            return json.load(f)
-    except FileNotFoundError as e:
-        print(f"Error: Could not find kafka_config.json at {config_path}")
-        raise e
+    with open(config_path, 'r') as f:
+        return json.load(f)
 
 kafka_config = load_kafka_config()
 KAFKA_BROKER = kafka_config['bootstrap_servers']
@@ -44,6 +39,15 @@ spark = SparkSession.builder \
     .config("spark.hadoop.security.authentication", "NONE") \
     .config("spark.hadoop.security.authorization", "false") \
     .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false") \
+    .config("spark.streaming.kafka.maxRatePerPartition", "10000") \
+    .config("spark.sql.shuffle.partitions", "10") \
+    .config("spark.default.parallelism", "10") \
+    .config("spark.streaming.backpressure.enabled", "true") \
+    .config("spark.streaming.kafka.consumer.cache.enabled", "true") \
+    .config("spark.hadoop.fs.s3a.fast.upload", "true") \
+    .config("spark.hadoop.fs.s3a.fast.upload.buffer", "bytebuffer") \
+    .config("spark.hadoop.fs.s3a.multipart.size", "10485760") \
+    .config("spark.hadoop.fs.s3a.threads.max", "20") \
     .getOrCreate()
 
 gps_stream = spark.readStream \
@@ -51,6 +55,7 @@ gps_stream = spark.readStream \
     .option("kafka.bootstrap.servers", KAFKA_BROKER) \
     .option("subscribe", GPS_TOPIC) \
     .option("startingOffsets", "latest") \
+    .option("failOnDataLoss", "false") \
     .load()
 
 weather_stream = spark.readStream \
@@ -58,6 +63,7 @@ weather_stream = spark.readStream \
     .option("kafka.bootstrap.servers", KAFKA_BROKER) \
     .option("subscribe", WEATHER_TOPIC) \
     .option("startingOffsets", "latest") \
+    .option("failOnDataLoss", "false") \
     .load()
 
 gps_schema = StructType() \
@@ -88,18 +94,40 @@ weather_df = weather_stream.selectExpr("CAST(value AS STRING)") \
     .dropDuplicates(["city", "timestamp"]) \
     .withWatermark("event_time", "5 minutes")
 
+# Add timestamp-based partitioning
+from pyspark.sql.functions import year, month, dayofmonth, hour
+
+weather_df = weather_df \
+    .withColumn("year", year("event_time")) \
+    .withColumn("month", month("event_time")) \
+    .withColumn("day", dayofmonth("event_time")) \
+    .withColumn("hour", hour("event_time"))
+
+gps_df = gps_df \
+    .withColumn("year", year("event_time")) \
+    .withColumn("month", month("event_time")) \
+    .withColumn("day", dayofmonth("event_time")) \
+    .withColumn("hour", hour("event_time"))
+
+# Write with optimized settings
 weather_query = weather_df.writeStream \
     .format("json") \
+    .partitionBy("year", "month", "day", "hour") \
     .option("path", base_path + 'weather_data') \
     .option("checkpointLocation", base_path + 'weather_data/checkpoint') \
+    .option("maxFilesPerTrigger", "10") \
     .outputMode("append") \
+    .trigger(processingTime='10 seconds') \
     .start()
 
 gps_query = gps_df.writeStream \
     .format("json") \
+    .partitionBy("year", "month", "day", "hour") \
     .option("path", base_path + 'gps_data') \
     .option("checkpointLocation", base_path + 'gps_data/checkpoint') \
+    .option("maxFilesPerTrigger", "10") \
     .outputMode("append") \
+    .trigger(processingTime='10 seconds') \
     .start()
 
 weather_query.awaitTermination()
