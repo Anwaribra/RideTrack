@@ -19,7 +19,7 @@ RideTrack360 is an intelligent real-time analytics platform designed for ride-ha
 
 
 
-##  Data Model
+## Data Model
 
 The data warehouse follows a star schema with:
 - **Fact Tables**: trips, vehicle_movement, weather
