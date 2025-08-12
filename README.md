@@ -211,17 +211,6 @@ These queries are optimized for ClickHouse performance and demonstrate various a
 
 
 
-## Future Enhancements
 
-This dashboard is a robust foundation for NYC taxi analytics. Potential future enhancements could include:
-
-*   **Real-time Data Streaming**: Integrate with Kafka or other streaming platforms to display live trip data.
-*   **Predictive Modeling**: Implement more sophisticated machine learning models for fare prediction, demand forecasting, or optimal routing.
-*   **User Authentication**: Add user login and role-based access control for secure data access.
-*   **Customizable Reports**: Allow users to generate and download custom reports based on their selected filters and visualizations.
-*   **Advanced Geospatial Analysis**: Incorporate more interactive maps with clustering, heatmaps, and route optimization features.
-*   **Alerting System**: Set up alerts for unusual patterns or anomalies in the data (e.g., sudden drops in revenue, unusually long trip durations).
-*   **Integration with External APIs**: Pull in data from external sources like traffic APIs or event calendars to enrich analysis.
-*   **Performance Optimization**: Further optimize ClickHouse queries and Streamlit caching for even larger datasets.
 
 
