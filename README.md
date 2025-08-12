@@ -161,13 +161,13 @@ The Streamlit dashboard provides a powerful and interactive interface for explor
 Here are some of the key sections and example visualizations from the dashboard:
 
 #### Business Overview 
-![Business Overview](data_ingestion\doc\Business_overview.png)
+![Business Overview](data_ingestion/doc/Business_overview.png)
 
 #### Revenue Analysis 
-![Revenue Analysis](data_ingestion\doc\Revenue_analysis.png)
+![Revenue Analysis](data_ingestion/doc/Revenue_analysis.png)
 
 #### Predictive Trip Analytics 
-![Predictive Trip Analytics](data_ingestion\doc\Predictivetripanalytics.png)
+![Predictive Trip Analytics](data_ingestion/doc/Predictivetripanalytics.png)
 
 
 
