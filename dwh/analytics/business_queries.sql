@@ -1,19 +1,65 @@
+
+
+
+
+-- BUSINESS SUMMARY METRICS
+
+
+-- Overall Business Summary
+SELECT 
+    'Total Trips' as metric,
+    COUNT(*)::String as value
+FROM fact_trips
+UNION ALL
+SELECT 
+    'Total Revenue' as metric,
+    '$' || toString(ROUND(SUM(total_amount), 2)) as value
+FROM fact_trips
+UNION ALL
+SELECT 
+    'Average Fare' as metric,
+    '$' || toString(ROUND(AVG(fare_amount), 2)) as value
+FROM fact_trips
+UNION ALL
+SELECT 
+    'Average Trip Distance' as metric,
+    toString(ROUND(AVG(trip_distance), 2)) || ' miles' as value
+FROM fact_trips
+UNION ALL
+SELECT 
+    'Average Trip Duration' as metric,
+    toString(ROUND(AVG(trip_duration_minutes), 1)) || ' minutes' as value
+FROM fact_trips
+WHERE trip_duration_minutes > 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- REVENUE ANALYSIS
 
-
--- Daily Revenue Trends
-SELECT 
-    toDate(dt.datetime) as date,
-    COUNT(*) as daily_trips,
-    ROUND(SUM(ft.total_amount), 2) as daily_revenue,
-    ROUND(AVG(ft.total_amount), 2) as avg_revenue_per_trip,
-    ROUND(SUM(ft.tip_amount), 2) as daily_tips,
-    ROUND(AVG(ft.tip_amount / NULLIF(ft.fare_amount, 0) * 100), 2) as avg_tip_percentage
-FROM fact_trips ft
-JOIN dim_time dt ON ft.pickup_time_key = dt.time_key
-WHERE toDate(dt.datetime) >= today() - INTERVAL 30 DAY
-GROUP BY toDate(dt.datetime)
-ORDER BY date DESC;
 
 -- Revenue by Hour of Day
 SELECT 
@@ -61,13 +107,13 @@ ORDER BY revenue DESC;
 -- Peak Hours Analysis
 SELECT 
     dt.hour_of_day,
-    dt.time_bucket,
+    dt.hour AS time_bucket,
     COUNT(*) as trip_count,
     ROUND(AVG(ft.trip_distance), 2) as avg_distance,
     ROUND(AVG(ft.trip_duration_minutes), 1) as avg_duration_minutes
 FROM fact_trips ft
 JOIN dim_time dt ON ft.pickup_time_key = dt.time_key
-GROUP BY dt.hour_of_day, dt.time_bucket
+GROUP BY dt.hour_of_day, dt.hour
 ORDER BY trip_count DESC;
 
 -- Monthly Trip Trends
@@ -153,7 +199,7 @@ LIMIT 20;
 
 -- Average Trip Metrics by Time Period
 SELECT 
-    dt.time_bucket,
+    dt.hour_of_day as time_bucket,
     COUNT(*) as trips,
     ROUND(AVG(ft.trip_distance), 2) as avg_distance,
     ROUND(AVG(ft.trip_duration_minutes), 1) as avg_duration,
@@ -162,7 +208,7 @@ SELECT
 FROM fact_trips ft
 JOIN dim_time dt ON ft.pickup_time_key = dt.time_key
 WHERE ft.trip_duration_minutes > 0 AND ft.trip_distance > 0
-GROUP BY dt.time_bucket
+GROUP BY dt.hour_of_day
 ORDER BY avg_speed_kmh DESC;
 
 -- Trip Duration Analysis
@@ -234,7 +280,6 @@ ORDER BY trip_count DESC;
 
 
 
-
 -- SURGE PRICING ANALYSIS
 
 -- Extra Charges Analysis
@@ -250,50 +295,3 @@ JOIN dim_time dt ON ft.pickup_time_key = dt.time_key
 GROUP BY dt.hour_of_day
 ORDER BY avg_extra DESC;
 
-
-
-
-
--- BUSINESS SUMMARY METRICS
-
-
--- Overall Business Summary
-SELECT 
-    'Total Trips' as metric,
-    COUNT(*)::String as value
-FROM fact_trips
-UNION ALL
-SELECT 
-    'Total Revenue' as metric,
-    '$' || toString(ROUND(SUM(total_amount), 2)) as value
-FROM fact_trips
-UNION ALL
-SELECT 
-    'Average Fare' as metric,
-    '$' || toString(ROUND(AVG(fare_amount), 2)) as value
-FROM fact_trips
-UNION ALL
-SELECT 
-    'Average Trip Distance' as metric,
-    toString(ROUND(AVG(trip_distance), 2)) || ' miles' as value
-FROM fact_trips
-UNION ALL
-SELECT 
-    'Average Trip Duration' as metric,
-    toString(ROUND(AVG(trip_duration_minutes), 1)) || ' minutes' as value
-FROM fact_trips
-WHERE trip_duration_minutes > 0;
-
--- Daily Performance Summary (Last 7 Days)
-SELECT 
-    toDate(dt.datetime) as date,
-    COUNT(*) as trips,
-    ROUND(SUM(ft.total_amount), 2) as revenue,
-    ROUND(AVG(ft.fare_amount), 2) as avg_fare,
-    ROUND(AVG(ft.trip_distance), 2) as avg_distance,
-    ROUND(AVG(ft.trip_duration_minutes), 1) as avg_duration
-FROM fact_trips ft
-JOIN dim_time dt ON ft.pickup_time_key = dt.time_key
-WHERE toDate(dt.datetime) >= today() - INTERVAL 7 DAY
-GROUP BY toDate(dt.datetime)
-ORDER BY date DESC;

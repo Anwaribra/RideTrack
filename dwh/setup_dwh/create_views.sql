@@ -19,7 +19,7 @@ ORDER BY dt.hour_of_day;
 -- Daily Trip Metrics
 CREATE OR REPLACE VIEW v_daily_trip_metrics AS
 SELECT 
-    toDate(concat(toString(dt.year), '-', toString(dt.month), '-', toString(dt.day))) as date,
+    toDate(makeDate(dt.year, dt.month, dt.day)) as date,
     COUNT(*) as daily_trips,
     SUM(ft.total_amount) as daily_revenue,
     AVG(ft.fare_amount) as avg_fare,
