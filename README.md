@@ -188,8 +188,10 @@ All the SQL queries used to power this Streamlit dashboard are consolidated in t
 These queries are optimized for ClickHouse performance and demonstrate various analytical patterns, including aggregations, joins, and conditional logic.
 
 
+## Documentation
 
-
+>For detailed technical documentation, implementation guides, and API references  Check out the full project here: 
+[RideTrack360 on DeepWiki](https://deepwiki.com/Anwaribra/RideTrack)
 
 
 
